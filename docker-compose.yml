@@ -1,0 +1,66 @@
+version: "3.3"
+
+services:
+  telegraf:
+    image: telegraf:latest
+    environment:
+      - HOST_PROC=/rootfs/proc
+      - HOST_SYS=/rootfs/sys
+      - HOST_ETC=/rootfs/etc
+    networks:
+      - monitoring
+    hostname: "{{.Node.ID}}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys:/rootfs/sys:ro
+      - /proc:/rootfs/proc:ro
+      - /etc:/rootfs/etc:ro
+    configs:
+      - source: telegraf.conf
+        target: /etc/telegraf/telegraf.conf
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure
+
+  influxdb:
+    image: influxdb:latest
+    ports:
+     - "8086:8086"
+    networks:
+      - monitoring
+    configs:
+      - source: influxdb.conf
+        target: /etc/influxdb/influxdb.conf
+    deploy:
+      placement:
+        constraints:
+          # - node.hostname == host1
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+
+  grafana:
+    image: grafana/grafana:monitoring
+    networks:
+      - monitoring
+    ports:
+      - "9999:3000"
+    deploy:
+      placement:
+        constraints:
+          # - node.hostname == host1
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+
+configs:
+  influxdb.conf:
+    file: ./influxdb.conf
+  telegraf.conf:
+    file: ./telegraf.conf
+
+networks:
+  monitoring:
+    driver: overlay
+
