@@ -1,6 +1,6 @@
 # Docker Swarm Monitoring
 
-Docker Swarm Monitoring it is a simple and fast way to monitoring your cluster, using Telegraf, InfluxDB e Grafana.
+Docker Swarm Monitoring it is a simple and fast way to monitoring your cluster, using Telegraf, InfluxDB and Grafana.
 
 ## Deploy
 
